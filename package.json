@@ -1,6 +1,6 @@
 {
   "author": "Handsoncode <hello@handsontable.com>",
-  "name": "@handsontable/formulajs",
+  "name": "@treelab/formulajs",
   "description": "JavaScript implementation of most Microsoft Excel formula functions",
   "version": "2.0.2",
   "repository": {
@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "bessel": "^1.0.2",
-    "jstat": "^1.9.2"
+    "jstat": "^1.9.2",
+    "number-precision": "^1.5.0"
   },
   "devDependencies": {
     "blanket": "^1.1.6",
@@ -36,6 +37,7 @@
     "mocha-lcov-reporter": "0.0.1",
     "mocha-spec-cov": "0.0.3",
     "should": "^11.1.0",
+    "standard-version": "^9.3.0",
     "webpack": "^3.5.5"
   },
   "config": {
