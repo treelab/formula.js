@@ -367,6 +367,7 @@ exports.transpose = function(matrix) {
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var NP = __webpack_require__(13);
 var utils = __webpack_require__(1);
 var error = __webpack_require__(0);
 var statistical = __webpack_require__(3);
@@ -1228,7 +1229,7 @@ exports.MINUS = function (num1, num2) {
     return error.value;
   }
 
-  return num1 - num2;
+  return NP.minus(num1, num2);
 };
 
 exports.DIVIDE = function (dividend, divisor) {
@@ -1246,7 +1247,7 @@ exports.DIVIDE = function (dividend, divisor) {
     return error.div0;
   }
 
-  return dividend / divisor;
+  return NP.divide(dividend, divisor);
 };
 
 exports.MULTIPLY = function (factor1, factor2) {
@@ -1260,7 +1261,7 @@ exports.MULTIPLY = function (factor1, factor2) {
     return error.value;
   }
 
-  return factor1 * factor2;
+  return NP.times(factor1, factor2);
 };
 
 exports.GTE = function (num1, num2) {
@@ -1341,15 +1342,14 @@ exports.SUM = function() {
 
   utils.arrayEach(utils.argsToArray(arguments), function(value) {
     if (typeof value === 'number') {
-      result += value;
-
+      result = NP.plus(result, value);
     } else if (typeof value === 'string') {
       var parsed = parseFloat(value);
 
-      !isNaN(parsed) && (result += parsed);
+      !isNaN(parsed) && (result = NP.plus(result, value));
 
     } else if (Array.isArray(value)) {
-      result += exports.SUM.apply(null, value);
+      result = NP.plus(result, exports.SUM.apply(null, value));
     }
   });
 
@@ -9674,7 +9674,7 @@ var error = __webpack_require__(0);
 var jStat = __webpack_require__(8);
 var text = __webpack_require__(4);
 var utils = __webpack_require__(1);
-var bessel = __webpack_require__(13);
+var bessel = __webpack_require__(14);
 
 function isValidBinaryNumber(number) {
   return (/^[01]{1,10}$/).test(number);
@@ -11240,15 +11240,15 @@ exports.OCT2HEX = function(number, places) {
 
 var categories = [
   __webpack_require__(12),
-  __webpack_require__(14),
-  __webpack_require__(10),
   __webpack_require__(15),
+  __webpack_require__(10),
+  __webpack_require__(16),
   __webpack_require__(2),
   __webpack_require__(4),
   __webpack_require__(7),
-  __webpack_require__(16),
-  __webpack_require__(6),
   __webpack_require__(17),
+  __webpack_require__(6),
+  __webpack_require__(18),
   __webpack_require__(3),
   __webpack_require__(9)
 ];
@@ -11356,6 +11356,211 @@ exports.ZTEST = statistical.Z.TEST;
 
 /***/ }),
 /* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "strip", function() { return strip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "plus", function() { return plus; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "minus", function() { return minus; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "times", function() { return times; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "divide", function() { return divide; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "round", function() { return round; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "digitLength", function() { return digitLength; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "float2Fixed", function() { return float2Fixed; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "enableBoundaryChecking", function() { return enableBoundaryChecking; });
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function __spreadArrays() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+}
+
+/**
+ * @desc 解决浮动运算问题，避免小数点后产生多位数和计算精度损失。
+ * 问题示例：2.3 + 2.4 = 4.699999999999999，1.0 - 0.9 = 0.09999999999999998
+ */
+/**
+ * 把错误的数据转正
+ * strip(0.09999999999999998)=0.1
+ */
+function strip(num, precision) {
+    if (precision === void 0) { precision = 15; }
+    return +parseFloat(Number(num).toPrecision(precision));
+}
+/**
+ * Return digits length of a number
+ * @param {*number} num Input number
+ */
+function digitLength(num) {
+    // Get digit length of e
+    var eSplit = num.toString().split(/[eE]/);
+    var len = (eSplit[0].split('.')[1] || '').length - +(eSplit[1] || 0);
+    return len > 0 ? len : 0;
+}
+/**
+ * 把小数转成整数，支持科学计数法。如果是小数则放大成整数
+ * @param {*number} num 输入数
+ */
+function float2Fixed(num) {
+    if (num.toString().indexOf('e') === -1) {
+        return Number(num.toString().replace('.', ''));
+    }
+    var dLen = digitLength(num);
+    return dLen > 0 ? strip(Number(num) * Math.pow(10, dLen)) : Number(num);
+}
+/**
+ * 检测数字是否越界，如果越界给出提示
+ * @param {*number} num 输入数
+ */
+function checkBoundary(num) {
+    if (_boundaryCheckingState) {
+        if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
+            console.warn(num + " is beyond boundary when transfer to integer, the results may not be accurate");
+        }
+    }
+}
+/**
+ * 精确乘法
+ */
+function times(num1, num2) {
+    var others = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        others[_i - 2] = arguments[_i];
+    }
+    if (others.length > 0) {
+        return times.apply(void 0, __spreadArrays([times(num1, num2), others[0]], others.slice(1)));
+    }
+    var num1Changed = float2Fixed(num1);
+    var num2Changed = float2Fixed(num2);
+    var baseNum = digitLength(num1) + digitLength(num2);
+    var leftValue = num1Changed * num2Changed;
+    checkBoundary(leftValue);
+    return leftValue / Math.pow(10, baseNum);
+}
+/**
+ * 精确加法
+ */
+function plus(num1, num2) {
+    var others = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        others[_i - 2] = arguments[_i];
+    }
+    if (others.length > 0) {
+        return plus.apply(void 0, __spreadArrays([plus(num1, num2), others[0]], others.slice(1)));
+    }
+    var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
+    return (times(num1, baseNum) + times(num2, baseNum)) / baseNum;
+}
+/**
+ * 精确减法
+ */
+function minus(num1, num2) {
+    var others = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        others[_i - 2] = arguments[_i];
+    }
+    if (others.length > 0) {
+        return minus.apply(void 0, __spreadArrays([minus(num1, num2), others[0]], others.slice(1)));
+    }
+    var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
+    return (times(num1, baseNum) - times(num2, baseNum)) / baseNum;
+}
+/**
+ * 精确除法
+ */
+function divide(num1, num2) {
+    var others = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        others[_i - 2] = arguments[_i];
+    }
+    if (others.length > 0) {
+        return divide.apply(void 0, __spreadArrays([divide(num1, num2), others[0]], others.slice(1)));
+    }
+    var num1Changed = float2Fixed(num1);
+    var num2Changed = float2Fixed(num2);
+    checkBoundary(num1Changed);
+    checkBoundary(num2Changed);
+    // fix: 类似 10 ** -4 为 0.00009999999999999999，strip 修正
+    return times(num1Changed / num2Changed, strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
+}
+/**
+ * 四舍五入
+ */
+function round(num, ratio) {
+    var base = Math.pow(10, ratio);
+    return divide(Math.round(times(num, base)), base);
+}
+var _boundaryCheckingState = true;
+/**
+ * 是否进行边界检查，默认开启
+ * @param flag 标记开关，true 为开启，false 为关闭，默认为 true
+ */
+function enableBoundaryChecking(flag) {
+    if (flag === void 0) { flag = true; }
+    _boundaryCheckingState = flag;
+}
+var index = {
+    strip: strip,
+    plus: plus,
+    minus: minus,
+    times: times,
+    divide: divide,
+    round: round,
+    digitLength: digitLength,
+    float2Fixed: float2Fixed,
+    enableBoundaryChecking: enableBoundaryChecking,
+};
+
+
+/* harmony default export */ __webpack_exports__["default"] = (index);
+
+
+/***/ }),
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* bessel.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -11607,7 +11812,7 @@ BESSEL.besselk = besselk;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -12012,7 +12217,7 @@ exports.DVARP = function(database, field, criteria) {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -12129,7 +12334,7 @@ exports.SWITCH = function () {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -13225,7 +13430,7 @@ exports.YIELDMAT = function() {
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);

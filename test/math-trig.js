@@ -222,6 +222,7 @@ describe('Math & Trig', function() {
   });
 
   it('DIVIDE', function() {
+    mathTrig.DIVIDE(1.21, 1.1).should.equal(1.1);
     mathTrig.DIVIDE(10, 4).should.equal(2.5);
     mathTrig.DIVIDE(12, -6).should.equal(-2);
     mathTrig.DIVIDE(0, 0).should.equal(error.div0);
@@ -395,6 +396,7 @@ describe('Math & Trig', function() {
   });
 
   it('MINUS', function() {
+    mathTrig.MINUS(6.4, 1.6).should.equal(4.8);
     mathTrig.MINUS(10, 4).should.equal(6);
     mathTrig.MINUS(1.2, 4).should.equal(-2.8);
     mathTrig.MINUS().should.equal(error.na);
@@ -425,6 +427,8 @@ describe('Math & Trig', function() {
   });
 
   it('MULTIPLY', function() {
+    mathTrig.MULTIPLY(3, 0.3).should.equal(0.9);
+    mathTrig.MULTIPLY(0.362, 100).should.equal(36.2);
     mathTrig.MULTIPLY(10, 4).should.equal(40);
     mathTrig.MULTIPLY(12, -6).should.equal(-72);
     mathTrig.MULTIPLY(0, 0).should.equal(0);
@@ -644,6 +648,8 @@ describe('Math & Trig', function() {
   });
 
   it("SUM", function() {
+    mathTrig.SUM(0.1, 0.2).should.equal(0.3);
+    mathTrig.SUM([0.1, 0.2]).should.equal(0.3);
     mathTrig.SUM(1, 2, 3).should.equal(6);
     mathTrig.SUM([1, 2, 3]).should.equal(6);
     mathTrig.SUM([1, 2, 3], 1, 2).should.equal(9);
