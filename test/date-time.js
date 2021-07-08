@@ -133,6 +133,9 @@ describe('Date & Time', function() {
   });
 
   it('SECOND', function() {
+    const date = new Date();
+    dateTime.SECOND(date.toISOString()).should.equal(date.getSeconds())
+    dateTime.SECOND(date).should.equal(date.getSeconds())
     dateTime.SECOND('1/1/1900').should.equal(0);
     dateTime.SECOND('1/1/1900 1:00:01').should.equal(1);
     dateTime.SECOND('a').should.equal(error.value);

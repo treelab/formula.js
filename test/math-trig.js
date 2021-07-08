@@ -38,6 +38,7 @@ describe('Math & Trig', function() {
   });
 
   it('ADD', function() {
+    mathTrig.ADD(0.1, 0.2).should.equal(0.3);
     mathTrig.ADD(10, 4).should.equal(14);
     mathTrig.ADD(1.2, 4).should.equal(5.2);
     mathTrig.ADD().should.equal(error.na);
@@ -487,6 +488,8 @@ describe('Math & Trig', function() {
   });
 
   it('PRODUCT', function() {
+    mathTrig.PRODUCT([3, 0.3]).should.equal(0.9);
+    mathTrig.PRODUCT([0.362, 100]).should.equal(36.2);
     mathTrig.PRODUCT([5, 15, 30]).should.equal(2250);
     mathTrig.PRODUCT([5, 'invalid', 30]).should.equal(error.value);
   });

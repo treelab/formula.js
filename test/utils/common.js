@@ -96,4 +96,11 @@ describe('Utils => common', function() {
     utils.transpose([[1,2,3,4],[5,6,7,8], [9,10,11,12]])
       .should.deepEqual([[1,5,9],[2,6,10], [3,7,11], [4,8,12]]);
   });
+
+  it('parseDate', function() {
+    const date = new Date()
+    const parsedDate = utils.parseDate(date)
+
+    should.equal(date.getTime(), parsedDate.getTime())
+  })
 });
